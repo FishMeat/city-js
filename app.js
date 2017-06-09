@@ -14,14 +14,31 @@ app.get('/city', function(req, res) {
 
 app.get("/findCity", function(req, res) {
 
-  var param = '北京'
+  var param = '浙江'
 
   var cityJson = JSON.parse(fs.readFileSync('city-data.json', 'utf8'))
   cityJson.forEach(function(entry){
     proviceList = entry.list
     proviceList.forEach(function(provice){
-      if(provice.name == param) {
-        res.send(provice.children)
+      var pName = provice.name
+      if(pName == param) {
+        var result = []
+        provice.children.forEach(function(pc){
+          var cityList = pc.list
+          cityList.forEach(function(city){
+            var cName = city.name
+            city.children.forEach(function(cc){
+              var areaList = cc.list
+              areaList.forEach(function(area){
+                var aName = area.name
+                var r = pName.concat(',', cName, ',', aName)
+                result.push(r)
+              })
+            })
+
+          })
+        })
+       res.send(result)
       }
     })
   })
