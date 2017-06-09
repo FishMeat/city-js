@@ -7,9 +7,24 @@ app.get('/', function (req, res) {
 })
 
 app.get('/city', function(req, res) {
-  var cityJson = JSON.parse(fs.readFileSync('city-data.json', 'utf8'))
+  var cityJson = fs.readFileSync('city-data.json', 'utf8')
 
   res.send(cityJson)
+})
+
+app.get("/findCity", function(req, res) {
+
+  var param = '北京'
+
+  var cityJson = JSON.parse(fs.readFileSync('city-data.json', 'utf8'))
+  cityJson.forEach(function(entry){
+    proviceList = entry.list
+    proviceList.forEach(function(provice){
+      if(provice.name == param) {
+        res.send(provice.children)
+      }
+    })
+  })
 })
 
 app.listen(3000, function() {
