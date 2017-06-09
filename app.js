@@ -14,7 +14,7 @@ app.get('/city', function(req, res) {
 
 app.get("/findCity", function(req, res) {
 
-  var param = '浙江'
+  var param = '滨江区区'
 
   var cityJson = JSON.parse(fs.readFileSync('city-data.json', 'utf8'))
   cityJson.forEach(function(entry){
@@ -39,7 +39,46 @@ app.get("/findCity", function(req, res) {
           })
         })
        res.send(result)
-      }
+     } else {
+       provice.children.forEach(function(pc){
+         var cityList = pc.list
+         cityList.forEach(function(city){
+           var cName = city.name
+           if (cName == param) {
+             var result = []
+             city.children.forEach(function(cc){
+               var areaList = cc.list
+               areaList.forEach(function(area){
+                 var aName = area.name
+                 var r = pName.concat(',', cName, ',', aName)
+                 result.push(r)
+               })
+             })
+
+             res.send(result)
+           } else{
+             city.children.forEach(function(cc){
+               var areaList = cc.list
+               areaList.forEach(function(area){
+                 var aName = area.name
+                 if (aName == param) {
+                   var result = []
+                   var r = pName.concat(',', cName, ',', aName)
+                   result.push(r)
+
+                   res.send(result)
+                 }
+
+                 res.send()
+
+               })
+             })
+
+           }
+
+         })
+       })
+     }
     })
   })
 })
