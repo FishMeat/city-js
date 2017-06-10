@@ -12,9 +12,9 @@ app.get('/city', function(req, res) {
   res.send(cityJson)
 })
 
-app.get("/findCity", function(req, res) {
+app.get("/findCity/:n", function(req, res) {
 
-  var param = '滨江区区'
+  var param = req.params.n
 
   var cityJson = JSON.parse(fs.readFileSync('city-data.json', 'utf8'))
   cityJson.forEach(function(entry){
@@ -57,30 +57,27 @@ app.get("/findCity", function(req, res) {
 
              res.send(result)
            } else{
+             var result = []
              city.children.forEach(function(cc){
                var areaList = cc.list
                areaList.forEach(function(area){
                  var aName = area.name
                  if (aName == param) {
-                   var result = []
                    var r = pName.concat(',', cName, ',', aName)
                    result.push(r)
-
                    res.send(result)
                  }
-
-                 res.send()
-
                })
              })
-
            }
-
          })
        })
      }
     })
+
   })
+
+  res.end()
 })
 
 app.listen(3000, function() {
