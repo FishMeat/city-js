@@ -17,71 +17,73 @@ app.get("/findCity/:n", function(req, res) {
 
   var param = req.params.n
 
-  var cityJson = JSON.parse(fs.readFileSync('city-data.json', 'utf8'))
-  cityJson.forEach(function(entry) {
-    proviceList = entry.list
-    proviceList.forEach(function(provice) {
-      var pName = provice.name
-      if (pName == param) {
-        var result = []
-        provice.children.forEach(function(pc) {
-          var cityList = pc.list
-          cityList.forEach(function(city) {
-            var cName = city.name
-            city.children.forEach(function(cc) {
-              var areaList = cc.list
-              areaList.forEach(function(area) {
-                var aName = area.name
-                console.log(pinyin(pName, {
-                  style: pinyin.STYLE_NORMAL
-                }))
-                var r = pName.concat(',', cName, ',', aName)
-                result.push(r)
-              })
-            })
+  var cityJson = JSON.parse(fs.readFileSync('city-pinyin.json', 'utf8'))
+  // cityJson.forEach(function(entry) {
+  //   proviceList = entry.list
+  //   proviceList.forEach(function(provice) {
+  //     var pName = provice.name
+  //     if (pName == param) {
+  //       var result = []
+  //       provice.children.forEach(function(pc) {
+  //         var cityList = pc.list
+  //         cityList.forEach(function(city) {
+  //           var cName = city.name
+  //           city.children.forEach(function(cc) {
+  //             var areaList = cc.list
+  //             areaList.forEach(function(area) {
+  //               var aName = area.name
+  //               console.log(pinyin(pName, {
+  //                 style: pinyin.STYLE_NORMAL
+  //               }))
+  //               var r = pName.concat(',', cName, ',', aName)
+  //               result.push(r)
+  //             })
+  //           })
+  //
+  //         })
+  //       })
+  //       res.send(result)
+  //     } else {
+  //       provice.children.forEach(function(pc) {
+  //         var cityList = pc.list
+  //         cityList.forEach(function(city) {
+  //           var cName = city.name
+  //           if (cName == param) {
+  //             var result = []
+  //             city.children.forEach(function(cc) {
+  //               var areaList = cc.list
+  //               areaList.forEach(function(area) {
+  //                 var aName = area.name
+  //                 var r = pName.concat(',', cName, ',', aName)
+  //                 result.push(r)
+  //               })
+  //             })
+  //
+  //             res.send(result)
+  //           } else {
+  //             var result = []
+  //             city.children.forEach(function(cc) {
+  //               var areaList = cc.list
+  //               areaList.forEach(function(area) {
+  //                 var aName = area.name
+  //                 if (aName == param) {
+  //                   var r = pName.concat(',', cName, ',', aName)
+  //                   result.push(r)
+  //                   res.send(result)
+  //                 }
+  //               })
+  //             })
+  //           }
+  //         })
+  //       })
+  //     }
+  //   })
+  //
+  // })
 
-          })
-        })
-        res.send(result)
-      } else {
-        provice.children.forEach(function(pc) {
-          var cityList = pc.list
-          cityList.forEach(function(city) {
-            var cName = city.name
-            if (cName == param) {
-              var result = []
-              city.children.forEach(function(cc) {
-                var areaList = cc.list
-                areaList.forEach(function(area) {
-                  var aName = area.name
-                  var r = pName.concat(',', cName, ',', aName)
-                  result.push(r)
-                })
-              })
-
-              res.send(result)
-            } else {
-              var result = []
-              city.children.forEach(function(cc) {
-                var areaList = cc.list
-                areaList.forEach(function(area) {
-                  var aName = area.name
-                  if (aName == param) {
-                    var r = pName.concat(',', cName, ',', aName)
-                    result.push(r)
-                    res.send(result)
-                  }
-                })
-              })
-            }
-          })
-        })
-      }
-    })
-
-  })
-
-  res.end()
+  var q = query(param)
+  var result = q(cityJson)
+  res.send(result)
 })
 
 app.get('/generatePinyin', function(req, res) {
@@ -146,13 +148,41 @@ app.get('/formatData', function(req, res) {
   res.end()
 })
 
-function generatePY (pinyin) {
+function generatePY(pinyin) {
   var arr = []
-  pinyin.forEach(function(p){
-     arr.push(p.join().charAt(0))
+  pinyin.forEach(function(p) {
+    arr.push(p.join().charAt(0))
   })
 
   return arr.join('').toUpperCase()
+}
+
+function query(p) {
+  var result = []
+  const param = p
+
+  function iteration(cityJson) {
+    if (cityJson.length == 0) {
+      return
+    }
+
+    cityJson.forEach(function(entry) {
+      var list = entry.list
+      list.forEach(function(i) {
+        var name = i.name
+        r.push(name)
+        if (name == param) {
+          result.push(r)
+        }
+
+        iteration(i.children)
+      })
+    })
+
+    return result
+  }
+
+  return iteration
 }
 
 app.listen(3000, function() {
