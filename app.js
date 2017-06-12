@@ -123,22 +123,18 @@ app.get('/formatData', function(req, res) {
   cityJson.forEach(function(entry) {
     proviceList = entry.list
     proviceList.forEach(function(provice) {
-      var pName = provice.name
-      provice.pinyin.join
+      provice.py = generatePY(provice.pinyin)
+      provice.pinyin = provice.pinyin.join('')
       provice.children.forEach(function(pc) {
         var cityList = pc.list
         cityList.forEach(function(city) {
-          var cName = city.name
-          city.pinyin = pinyin(cName, {
-            style: pinyin.STYLE_NORMAL
-          })
+          city.py = generatePY(city.pinyin)
+          city.pinyin = city.pinyin.join('')
           city.children.forEach(function(cc) {
             var areaList = cc.list
             areaList.forEach(function(area) {
-              var aName = area.name
-              area.pinyin = pinyin(aName, {
-                style: pinyin.STYLE_NORMAL
-              })
+              area.py = generatePY(area.pinyin)
+              area.pinyin = area.pinyin.join('')
             })
           })
         })
@@ -149,6 +145,15 @@ app.get('/formatData', function(req, res) {
   fs.writeFileSync('city-pinyin.json', JSON.stringify(cityJson), 'utf8')
   res.end()
 })
+
+function generatePY (pinyin) {
+  var arr = []
+  pinyin.forEach(function(p){
+     arr.push(p.join().charAt(0))
+  })
+
+  return arr.join('').toUpperCase()
+}
 
 app.listen(3000, function() {
   console.log('Example app listening on port 3000!')
